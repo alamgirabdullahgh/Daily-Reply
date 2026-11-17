@@ -2,7 +2,12 @@ package com.rahcare.autoreply
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
+import android.provider.Settings
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -30,6 +35,7 @@ class ContactsActivity : Activity() {
     private val warn = Color.parseColor("#F2867F")
     private lateinit var listBox: LinearLayout
     private lateinit var countTv: TextView
+    private lateinit var permBox: LinearLayout
     private var q = ""
 
     private fun d(v: Int) = (v * resources.displayMetrics.density).toInt()
@@ -98,6 +104,9 @@ class ContactsActivity : Activity() {
             override fun beforeTextChanged(a: CharSequence?, b: Int, c: Int, d: Int) {}
             override fun onTextChanged(a: CharSequence?, b: Int, c: Int, d: Int) {}
         })
+        permBox = LinearLayout(this)
+        permBox.orientation = LinearLayout.VERTICAL
+        body.addView(permBox, LinearLayout.LayoutParams(mp, wc).apply { bottomMargin = d(10) })
         body.addView(search, LinearLayout.LayoutParams(mp, wc))
         countTv = tv("", 12f, mute)
         body.addView(countTv, LinearLayout.LayoutParams(mp, wc).apply { topMargin = d(8) })
@@ -112,7 +121,53 @@ class ContactsActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        perms()
         fill()
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onRequestPermissionsResult(code: Int, p: Array<out String>, r: IntArray) {
+        super.onRequestPermissionsResult(code, p, r)
+        perms()
+    }
+
+    private fun callOk() = checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
+        checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+
+    private fun btn(t: String, f: () -> Unit): TextView {
+        val b = tv(t, 13f, accent, true)
+        b.gravity = Gravity.CENTER
+        b.background = rounded(Color.parseColor("#1A252B"), 10)
+        b.setPadding(d(12), d(10), d(12), d(10))
+        b.setOnClickListener { f() }
+        return b
+    }
+
+    // কলের সময় তথ্য দেখাতে দুটো অনুমতি লাগে: কল ধরার (ফোন ও কল-লগ) আর অন্য অ্যাপের ওপরে ভেসে ওঠার
+    private fun perms() {
+        permBox.removeAllViews()
+        val okC = callOk()
+        val okO = Settings.canDrawOverlays(this)
+        val mp = ViewGroup.LayoutParams.MATCH_PARENT
+        val wc = ViewGroup.LayoutParams.WRAP_CONTENT
+        if (okC && okO) {
+            permBox.addView(tv("✓ কল আসার সময় চেনা ব্যক্তির তথ্য পর্দায় দেখানো চালু", 12.5f, accent), LinearLayout.LayoutParams(mp, wc))
+            return
+        }
+        val card = LinearLayout(this)
+        card.orientation = LinearLayout.VERTICAL
+        card.background = rounded(panel, 16, warn)
+        card.setPadding(d(14), d(12), d(14), d(14))
+        card.addView(tv("কল আসার সময় তথ্য দেখাতে অনুমতি লাগবে", 15f, ink, true))
+        card.addView(tv("জমা থাকা কেউ ফোন করলে নাম, ঠিকানা আর আগে কতবার ফোন/মেসেজ করেছেন তা পর্দায় ভেসে উঠবে। তথ্য ফোনের বাইরে যায় না।", 12.5f, mute), LinearLayout.LayoutParams(mp, wc).apply { topMargin = d(6) })
+        if (!okC) card.addView(btn("১. কল ধরার অনুমতি দিন") {
+            requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CALL_LOG), 71)
+        }, LinearLayout.LayoutParams(mp, wc).apply { topMargin = d(10) })
+        if (!okO) card.addView(btn((if (okC) "১" else "২") + ". অন্য অ্যাপের ওপরে দেখানোর অনুমতি দিন") {
+            try { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) } catch (e: Exception) {}
+        }, LinearLayout.LayoutParams(mp, wc).apply { topMargin = d(8) })
+        if (!okO) card.addView(tv("এই অনুমতি না দিলে কার্ডের বদলে বড় নোটিফিকেশন আসবে।", 12f, mute), LinearLayout.LayoutParams(mp, wc).apply { topMargin = d(6) })
+        permBox.addView(card, LinearLayout.LayoutParams(mp, wc))
     }
 
     private fun fmt(t: Long): String = if (t <= 0L) "—" else SimpleDateFormat("d MMM, h:mm a", Locale.getDefault()).format(Date(t))

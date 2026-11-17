@@ -148,8 +148,6 @@ object Replier {
         Store.mark(c, hid)
         if (markOnly) return
         if (text in sent) return // এটা আমাদেরই পাঠানো উত্তর
-        // যোগাযোগ: সরাসরি চ্যাটে কেউ নাম/নম্বর/ঠিকানা দিলে ফোনে জমা হয় এবং মেসেজ গোনা হয় (গ্রুপ বাদ)
-        try { Contacts.onMessage(c, pkg, sender, text, isGroup) } catch (e: Exception) { Store.ev(c, "যোগাযোগ জমা ব্যর্থ: ${e.javaClass.simpleName}") }
         if (catchUp && System.currentTimeMillis() - postTime > 2 * 60 * 1000L) Store.missed(c) // মেসেজ ২ মিনিটের বেশি অপেক্ষায় ছিল, মানে আগে উত্তর যায়নি
 
         // আগে নিয়ম; কোনো নিয়ম না মিললে (এবং AI চালু ও সাজানো থাকলে) AI

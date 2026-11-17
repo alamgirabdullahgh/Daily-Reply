@@ -1,5 +1,6 @@
 package com.rahcare.autoreply
 
+import android.app.Notification
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
@@ -125,6 +126,77 @@ object Contacts {
         for (ph in phones) if (p.phones.none { ContactsParse.phoneKey(it) == ContactsParse.phoneKey(ph) }) p.phones.add(ph)
         if (name != null) p.name = name
         if (addr != null) p.addr = addr
+        save(c, list)
+    }
+
+    // ---- নোটিফিকেশন থেকে সরাসরি: যেকোনো মেসেজিং অ্যাপ ও SMS (উত্তর-সুইচ চালু না থাকলেও) ----
+    private val seen = object : LinkedHashMap<String, Long>(16, 0.75f, false) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Long>?): Boolean = size > 500
+    }
+
+    @Synchronized
+    private fun firstSeen(k: String): Boolean {
+        if (seen.containsKey(k)) return false
+        seen[k] = System.currentTimeMillis()
+        return true
+    }
+
+    fun onNotification(c: Context, pkg: String, n: Notification, catchUp: Boolean) {
+        if (catchUp || pkg == c.packageName) return
+        if ((n.flags and Notification.FLAG_GROUP_SUMMARY) != 0) return
+        val l = pkg.lowercase()
+        val sms = l.contains("messag") || l.contains("mms") || l.contains("sms")
+        val call = n.category == Notification.CATEGORY_CALL
+        if (Store.family(pkg) == null && !sms && n.category != Notification.CATEGORY_MESSAGE && !call) return
+        val ex = n.extras
+        var text = ex.getCharSequence("android.text")?.toString() ?: ""
+        var sender = ex.getCharSequence("android.title")?.toString() ?: ""
+        var stamp = ""
+        val msgs = ex.getParcelableArray("android.messages")
+        if (msgs != null && msgs.isNotEmpty()) {
+            val b = msgs.last() as? android.os.Bundle
+            if (b != null) {
+                b.getCharSequence("text")?.let { text = it.toString() }
+                b.getCharSequence("sender")?.let { sender = it.toString() }
+                stamp = b.getLong("time").toString()
+            }
+        }
+        if (call) {
+            // WhatsApp/অন্য অ্যাপের ইনকামিং কল: প্রেরকের নাম ধরে মিলিয়ে কার্ড দেখায়
+            val s = sender.trim()
+            if (s.isEmpty()) return
+            val ak = (Store.grp(pkg) ?: pkg) + "|" + s.lowercase()
+            val p = byAlias(c, ak) ?: ContactsParse.senderPhone(s)?.let { findByPhone(c, it) } ?: return
+            CallCard.incoming(c, p.id, "অ্যাপ কল")
+            return
+        }
+        if (text.isBlank() || sender.isBlank()) return
+        if (text.trimEnd().endsWith("\u26A1")) return // আমাদেরই অটো-রিপ্লাই
+        val title = ex.getCharSequence("android.conversationTitle")?.toString()
+        var isGroup = ex.getBoolean("android.isGroupConversation") || (title != null && title != sender)
+        if (Store.grp(pkg) == "Telegram") {
+            val cid = (n.channelId ?: "").lowercase()
+            if (cid.contains("channel") || sender.trim().lowercase().endsWith("bot")) return
+            if (cid.contains("group")) isGroup = true
+        }
+        val mid = if (stamp.isNotEmpty() && stamp != "0") stamp else if (n.`when` > 0L) "w" + n.`when` else ""
+        if (mid.isEmpty()) return // মেসেজের সময়ছাপ ছাড়া একই মেসেজ দুবার গোনার ঝুঁকি
+        if (!firstSeen("$pkg|$sender|$text|$mid")) return
+        onMessage(c, pkg, sender, text, isGroup)
+    }
+
+    @Synchronized
+    fun byAlias(c: Context, ak: String): Person? = load(c).firstOrNull { it.aliases.contains(ak) }
+
+    @Synchronized
+    fun byId(c: Context, id: String): Person? = load(c).firstOrNull { it.id == id }
+
+    @Synchronized
+    fun addCall(c: Context, id: String) {
+        val list = load(c)
+        val p = list.firstOrNull { it.id == id } ?: return
+        p.calls += 1
+        p.lastCall = System.currentTimeMillis()
         save(c, list)
     }
 

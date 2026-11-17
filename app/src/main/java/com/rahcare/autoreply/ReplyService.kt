@@ -29,6 +29,8 @@ class ReplyService : NotificationListenerService() {
             val tf = SimpleDateFormat("HH:mm:ss", Locale.US)
             Store.ev(c, "নোটিফিকেশন এসেছে: ${sbn.packageName} reply-বাটন=$ra তৈরি=${tf.format(Date(sbn.postTime))} এখন=${tf.format(Date())} স্ক্রিন-চালু=${pm.isInteractive} ডজ=${pm.isDeviceIdleMode}")
         }
+        // যোগাযোগ: উত্তর-সুইচ চালু/বন্ধ যাই হোক, মেসেজ ও কলের নোটিফিকেশন থেকে তথ্য জমা ও গোনা
+        try { Contacts.onNotification(c, sbn.packageName, sbn.notification, false) } catch (e: Exception) { Store.ev(c, "যোগাযোগ ব্যর্থ: ${e.javaClass.simpleName}") }
         // উত্তর পাঠানোর সময় সিপিইউ যেন ঘুমিয়ে না পড়ে
         var wl: PowerManager.WakeLock? = null
         try {
