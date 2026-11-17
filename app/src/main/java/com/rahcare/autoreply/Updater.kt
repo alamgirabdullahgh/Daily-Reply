@@ -13,7 +13,7 @@ import java.net.URL
 
 // GitHub-এ নতুন রিলিজ এলে নিজে থেকে ধরে: অ্যাপ খোলা থাকলে ব্যানার, বন্ধ থাকলে নোটিফিকেশন
 object Updater {
-    const val REPO = "alamgirabdullahgh/Daily-Reply" // রিপো এই নামে বদলানো হয়েছে; ফাইলের নাম (AutoReply.apk) আগের মতোই রাখা, নইলে পুরনো কপির আপডেট ভাঙবে
+    const val REPO = "alamgirabdullahgh/Daily-Reply" // রিপো এই নামে বদলানো হয়েছে; রিলিজে DailyReply.apk-র সাথে পুরনো কপির জন্য AutoReply.apk-ও থাকে
 
     class Info(val v: Int, val url: String)
 
@@ -39,7 +39,7 @@ object Updater {
             cn.readTimeout = 10000
             val tag = (cn.getHeaderField("Location") ?: "").substringAfterLast('/')
             val v = tag.substringAfterLast('.').toInt()
-            return Info(v, "https://github.com/$REPO/releases/download/$tag/AutoReply.apk")
+            return Info(v, "https://github.com/$REPO/releases/download/$tag/DailyReply.apk")
         } finally {
             cn.disconnect()
         }
