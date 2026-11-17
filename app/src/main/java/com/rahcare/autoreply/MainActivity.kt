@@ -947,6 +947,20 @@ class MainActivity : Activity() {
         aiCard.addView(aiRow)
         addSide(aiCard, 16)
 
+        // যোগাযোগ: মেসেজে দেওয়া নাম/নম্বর/ঠিকানা ও মেসেজ-ফোনের গোনা
+        val ctCard = card()
+        val ctRow = LinearLayout(this)
+        ctRow.orientation = LinearLayout.HORIZONTAL
+        ctRow.gravity = Gravity.CENTER_VERTICAL
+        val ctCol = LinearLayout(this)
+        ctCol.orientation = LinearLayout.VERTICAL
+        ctCol.addView(tv("যোগাযোগ", 16f, bold = true))
+        ctCol.addView(tv("মেসেজে দেওয়া নাম, নম্বর ও ঠিকানা জমা থাকে", 12f, mute))
+        ctRow.addView(ctCol, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        ctRow.addView(ghost("খুলুন") { closeMenu(); startActivity(Intent(this, ContactsActivity::class.java)) })
+        ctCard.addView(ctRow)
+        addSide(ctCard, 14)
+
         // শেষ ঘটনা
         val act = card()
         title(act, "সর্বশেষ কার্যকলাপ")

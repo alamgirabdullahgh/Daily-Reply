@@ -35,6 +35,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ContactsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name=".ApkShareProvider"
             android:authorities="${applicationId}.apkshare"
