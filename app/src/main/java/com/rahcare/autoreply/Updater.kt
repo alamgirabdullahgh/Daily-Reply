@@ -13,7 +13,7 @@ import java.net.URL
 
 // GitHub-এ নতুন রিলিজ এলে নিজে থেকে ধরে: অ্যাপ খোলা থাকলে ব্যানার, বন্ধ থাকলে নোটিফিকেশন
 object Updater {
-    const val REPO = "alamgirabdullahgh/AutoReply"
+    const val REPO = "alamgirabdullahgh/Daily-Reply" // রিপো এই নামে বদলানো হয়েছে; ফাইলের নাম (AutoReply.apk) আগের মতোই রাখা, নইলে পুরনো কপির আপডেট ভাঙবে
 
     class Info(val v: Int, val url: String)
 
@@ -161,11 +161,11 @@ object Updater {
     fun confirmNotice(c: Context, ui: Intent) {
         try {
             val nm = c.getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(NotificationChannel("update_q", "AutoReply আপডেট", NotificationManager.IMPORTANCE_LOW))
+            nm.createNotificationChannel(NotificationChannel("update_q", "Daily Reply আপডেট", NotificationManager.IMPORTANCE_LOW))
             val pi = PendingIntent.getActivity(c, 12, ui, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val n = Notification.Builder(c, "update_q")
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentTitle("AutoReply-এর নতুন সংস্করণ তৈরি")
+                .setContentTitle("Daily Reply-এর নতুন সংস্করণ তৈরি")
                 .setContentText("চাপুন — ইনস্টল নিশ্চিত করুন")
                 .setContentIntent(pi)
                 .setAutoCancel(true)
@@ -201,14 +201,14 @@ object Updater {
     private fun notice(c: Context) {
         try {
             val nm = c.getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(NotificationChannel("update_q", "AutoReply আপডেট", NotificationManager.IMPORTANCE_LOW))
+            nm.createNotificationChannel(NotificationChannel("update_q", "Daily Reply আপডেট", NotificationManager.IMPORTANCE_LOW))
             val go = Intent(c, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra("upd", true)
             val pi = PendingIntent.getActivity(c, 8, go, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val n = Notification.Builder(c, "update_q")
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentTitle("AutoReply-এর নতুন সংস্করণ এসেছে")
+                .setContentTitle("Daily Reply-এর নতুন সংস্করণ এসেছে")
                 .setContentText("চাপুন — আপডেট শুরু হবে")
                 .setContentIntent(pi)
                 .setAutoCancel(true)

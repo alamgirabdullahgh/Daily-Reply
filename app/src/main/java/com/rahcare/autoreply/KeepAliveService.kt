@@ -36,11 +36,11 @@ class KeepAliveService : Service() {
 
     override fun onStartCommand(i: Intent?, f: Int, id: Int): Int {
         val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(NotificationChannel("keep", "Auto Reply", NotificationManager.IMPORTANCE_LOW))
+        nm.createNotificationChannel(NotificationChannel("keep", "Daily Reply", NotificationManager.IMPORTANCE_LOW))
         val pi = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val n = Notification.Builder(this, "keep")
             .setSmallIcon(android.R.drawable.stat_notify_chat)
-            .setContentTitle("Auto Reply")
+            .setContentTitle("Daily Reply")
             .setContentIntent(pi)
             .setOngoing(true)
             .build()

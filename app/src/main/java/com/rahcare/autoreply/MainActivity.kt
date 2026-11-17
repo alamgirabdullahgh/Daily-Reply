@@ -251,7 +251,7 @@ class MainActivity : Activity() {
         })
         menuBtn.setOnClickListener { if (menuOpen) closeMenu() else openMenu() }
         bar.addView(menuBtn, LinearLayout.LayoutParams(wc, wc))
-        val t = tv("AutoReply", 20f, Color.WHITE, true)
+        val t = tv("Daily Reply", 20f, Color.WHITE, true)
         t.setPadding(d(6), 0, 0, 0)
         bar.addView(t, LinearLayout.LayoutParams(0, wc, 1f))
         bar.addView(sw(on) { v -> setMaster(v) })
@@ -894,7 +894,7 @@ class MainActivity : Activity() {
                 // হোম স্ক্রিনের পথ বাদ: বোতামে চাপলেই সরাসরি ফোনের অ্যাপ তালিকা খোলে (App info সরাসরি খুললে অনেক ফোনে ⋮ মেনু আসে না, তালিকা থেকে খুললে আসে)।
                 // তালিকা থেকে Auto Reply-এ চেপে ⋮ → Allow restricted settings; ফিরে এলে অ্যাপ নিজে আবার সেটিংস পাতা খুলে দেয় (onResume)
                 Store.sp(this).edit().putString("info_for", key).apply()
-                Toast.makeText(this, "তালিকায় \"Auto Reply\" খুঁজে চাপুন, ওপরে ডানে ⋮ চেপে \"Allow restricted settings\" দিন, তারপর ফিরে আসুন", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "তালিকায় \"Daily Reply\" খুঁজে চাপুন, ওপরে ডানে ⋮ চেপে \"Allow restricted settings\" দিন, তারপর ফিরে আসুন", Toast.LENGTH_LONG).show()
                 try {
                     startActivity(Intent(Settings.ACTION_MANAGE_ALL_APPLICATIONS_SETTINGS))
                 } catch (e: Exception) {
@@ -1013,7 +1013,7 @@ class MainActivity : Activity() {
         val vrow = LinearLayout(this)
         vrow.orientation = LinearLayout.HORIZONTAL
         vrow.gravity = Gravity.CENTER_VERTICAL
-        val vt = tv("Auto Reply v$vName.${Updater.curVer(c)}", 15f, bold = true)
+        val vt = tv("Daily Reply v$vName.${Updater.curVer(c)}", 15f, bold = true)
         vt.maxLines = 1
         vt.setAutoSizeTextTypeUniformWithConfiguration(10, 15, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
         vrow.addView(vt, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { rightMargin = d(10) })
@@ -1025,17 +1025,17 @@ class MainActivity : Activity() {
         verHolder.addView(ver, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
-    // অ্যাপের APK "Auto Reply.apk" নামে শেয়ার (ফাইলের নাম ApkShareProvider ঠিক করে)
+    // অ্যাপের APK "Daily Reply.apk" নামে শেয়ার (ফাইলের নাম ApkShareProvider ঠিক করে)
     private fun shareApp() {
         try {
             val u = ApkShareProvider.uri(this)
             val i = Intent(Intent.ACTION_SEND)
             i.type = "application/vnd.android.package-archive"
             i.putExtra(Intent.EXTRA_STREAM, u)
-            i.putExtra(Intent.EXTRA_SUBJECT, "Auto Reply")
+            i.putExtra(Intent.EXTRA_SUBJECT, "Daily Reply")
             i.clipData = android.content.ClipData.newRawUri(ApkShareProvider.NAME, u)
             i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            startActivity(Intent.createChooser(i, "Auto Reply শেয়ার করুন"))
+            startActivity(Intent.createChooser(i, "Daily Reply শেয়ার করুন"))
         } catch (e: Exception) {
             Toast.makeText(this, "শেয়ার করা যায়নি", Toast.LENGTH_LONG).show()
         }

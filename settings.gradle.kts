@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "AutoReply"
+rootProject.name = "DailyReply"
 include(":app")

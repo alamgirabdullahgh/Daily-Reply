@@ -49,7 +49,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp app/build/outputs/apk/release/app-release.apk AutoReply.apk
-          gh release create "v1.0.$VC" AutoReply.apk --title "AutoReply v1.0.$VC" --notes "Download AutoReply.apk and install it. Installed copies show an update button inside the app." --latest
+          gh release create "v1.0.$VC" AutoReply.apk --title "Daily Reply v1.0.$VC" --notes "Download AutoReply.apk and install it. Installed copies show an update button inside the app." --latest
 
       - name: Save build error log (branch build-logs)
         if: failure()

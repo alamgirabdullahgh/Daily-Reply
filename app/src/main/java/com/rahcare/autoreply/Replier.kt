@@ -15,6 +15,9 @@ import java.util.Locale
 object Replier {
     private val lastSeen = HashMap<String, String>() // নোটিফিকেশন -> শেষ দেখা মেসেজ (একই মেসেজে দুবার নয়)
     private val sent = HashSet<String>()             // আমাদের পাঠানো উত্তর (চক্র ঠেকাতে)
+    // অটো-রিপ্লাইয়ের প্রতিটা মেসেজের নিচে এই সই যায়, যেন বোঝা যায় কোনটা অটো আর কোনটা হাতে পাঠানো
+    private const val SIG = "\nDR"
+    private fun signed(t: String): String = t.trimEnd() + SIG
     // মেসেজের পরিচয় (প্রেরক+লেখা+মেসেজের নিজের সময়ছাপ) -> কখন দেখা। কাজ: একই মেসেজ দুই পথে (listener + accessibility) বা একই নোটিফিকেশন বারবার পোস্ট হলে দুবার উত্তর ঠেকানো।
     // কোনো সময়সীমা নেই: নতুন মেসেজের সময়ছাপ আলাদা, তাই একই লেখা সাথে সাথে আবার এলেও সাথে সাথে উত্তর যায়। শুধু সংখ্যায় সীমিত (শেষ ৫০০টা মনে রাখে)।
     private val recent = object : LinkedHashMap<String, Long>(16, 0.75f, false) {
@@ -159,10 +162,11 @@ object Replier {
             // আগে মুক্ত-লেখার ঘর; না পেলে যেকোনো সাধারণ (ডেটা-নয়) ইনপুট ঘর, কারণ কিছু অ্যাপ (যেমন Facebook Lite) এভাবে দেয়
             val ri = ris.firstOrNull { it.allowFreeFormInput } ?: ris.firstOrNull { it.allowedDataTypes.isEmpty() } ?: continue
             if (reply == null) { replyWithAi(c, pkg, uid, sender, text, a, ris, ri, dk, pk, key); return }
+            val out = signed(reply)
             if (sent.size > 50) sent.clear()
-            sent.add(reply)
+            sent.add(out)
             diagTxt = diag(a, ri, ris)
-            val err = send(c, a, ris, ri, reply)
+            val err = send(c, a, ris, ri, out)
             Store.ev(c, "উত্তর পাঠানোর ফল: " + (err ?: "সফল"))
             if (err == null) Store.stamp(c, "reply") else forget(dk, pk, key)
             log(c, pkg, uid, sender, text, if (err == null) "উত্তর পাঠানো হয়েছে: $reply" else "পাঠাতে ব্যর্থ ($err)")
@@ -189,7 +193,7 @@ object Replier {
             } catch (e: Exception) {}
             try {
                 val res = Ai.answer(c, conv, text)
-                val ans = res.first
+                val ans = res.first?.let { signed(it) }
                 if (ans == null) {
                     Store.ev(c, "AI ব্যর্থ: ${res.second}")
                     forget(dk, pk, key)

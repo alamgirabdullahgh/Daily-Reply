@@ -50,6 +50,6 @@ jobs:
           VER=1.0.${{ github.run_number }}
           # --latest=false: Android অ্যাপের আপডেট-পরীক্ষা "latest release" দেখে, তাই Windows রিলিজ যেন সেটা দখল না করে
           gh release create "windows-v$VER" "dist/AutoReply-Setup-$VER.exe" \
-            --title "AutoReply for Windows v$VER" \
+            --title "Daily Reply for Windows v$VER" \
             --notes "AutoReply-Setup-$VER.exe ডাউনলোড করে ডাবল ক্লিক করুন। Windows SmartScreen সতর্ক করলে More info, তারপর Run anyway চাপুন।" \
             --latest=false

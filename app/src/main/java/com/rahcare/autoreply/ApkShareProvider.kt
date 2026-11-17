@@ -10,10 +10,10 @@ import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import java.io.File
 
-// অ্যাপের নিজের APK-টা "Auto Reply.apk" নামে শেয়ার করতে দেয়: শেয়ার-শিটে ও যাকে পাঠানো হয় তার ফোনে এই নামই দেখায়
+// অ্যাপের নিজের APK-টা "Daily Reply.apk" নামে শেয়ার করতে দেয়: শেয়ার-শিটে ও যাকে পাঠানো হয় তার ফোনে এই নামই দেখায়
 class ApkShareProvider : ContentProvider() {
     companion object {
-        const val NAME = "Auto Reply.apk"
+        const val NAME = "Daily Reply.apk"
         fun uri(c: Context): Uri = Uri.Builder().scheme("content").authority(c.packageName + ".apkshare").appendPath(NAME).build()
     }
 
